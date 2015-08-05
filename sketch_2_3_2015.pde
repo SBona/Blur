@@ -14,7 +14,7 @@ int colorNum;
 
 void setup()
 {
-  size(620, 620);
+  size(621, 621);
 
   imageHeight = displayHeight;
   smallestSquare = 1;
