@@ -66,9 +66,18 @@ void circleVisuals()
   ellipse(width/2, height/2, trad, trad);
 
 
- if(C
+ if(colorNum == 1)
+ {
   stroke(0, 0, 255);
-  
+  colorNum = 2;
+ }else if(colorNum == 2)
+ {
+   colorNum = 3;
+   stroke(0,255,0);
+ }else{
+   stroke(255,255,0);
+   colorNum = 1;
+ }
   
   if (fft.getAvg(50)>(maxAverages[50]/2))
   {
