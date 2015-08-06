@@ -24,16 +24,15 @@ void setup()
   size(500, 500);
 
   imageCount = 78;
-  songCount = 11;
-  //number of values the fft object returns is 63
+  songCount = 3;
   loadMusic();
 
+  //number of values the fft object returns is 63
   maxAverages = new float[fft.avgSize()];
   for (float i : maxAverages)
   {
     i = 20;
   }
-
   updateMaxAverages();
 
   //Visualization 1
@@ -46,9 +45,6 @@ void setup()
 }
 void draw()
 {
-  fill(0, 0, 0, 10);
-  rect(0, 0, width, height);
-
   //update the fourier object an display 
   fft.forward(player.mix);
 
@@ -72,7 +68,7 @@ void draw()
 
 void centerGraph()
 {
-  background(0);
+  background(0, 0, 0, 1);
   pushMatrix();
   translate(width/2, height/2);
 
@@ -80,12 +76,14 @@ void centerGraph()
   {
     rotate(2*PI/fft.avgSize());
     stroke(fft.avgSize()-i, 0, i);
-    strokeWeight(4);
+    strokeWeight(6);
+    strokeCap(SQUARE);
     line(0, 0, map(fft.getAvg(i), 0, maxAverages[i], 100, 180), 0);
   }
   popMatrix();
 
   fill(0);
+  strokeWeight(2);
   ellipse(width/2, height/2, 200, 200);
 }
 
@@ -115,22 +113,41 @@ void keyPressed()
       player.play();
     }
   }
+  //r
   if (key == 114)
   {
     player.rewind();
+  }
+  //m
+  if (key == 109)
+  {
+    player.mute();
   }
 }
 
 void displayInfo()
 {
-  stroke(255);
-  int textSize = (int) height/50;
-  textAlign(RIGHT);
-  textSize(textSize);
-  text(player.getMetaData().title(), width-textSize, textSize);
-  text(player.getMetaData().album(), width-textSize, (2*textSize)+2);
-  text(player.getMetaData().author(), width-textSize, (3*textSize)+4);
-  textAlign(LEFT);
+  if (visualizationType != 3)
+  {
+    stroke(255);
+    int textSize = (int) height/50;
+    textAlign(RIGHT);
+    textSize(textSize);
+    text(player.getMetaData().title(), width-textSize, textSize);
+    text(player.getMetaData().album(), width-textSize, (2*textSize)+2);
+    text(player.getMetaData().author(), width-textSize, (3*textSize)+4);
+    textAlign(LEFT);
+  } else
+  {
+    fill(255, 0, 0);
+    stroke(255, 0, 0);
+    int textSize = 9;
+    textAlign(CENTER);
+    textSize(textSize);
+    text(player.getMetaData().title(), width/2, (height/2)-textSize);
+    text(player.getMetaData().album(), width/2, height/2 );
+    text(player.getMetaData().author(), width/2, (height/2)+textSize);
+  }
   //stext("Image: "+imageIndex, textSize, textSize);
 }
 
@@ -169,15 +186,6 @@ void updateResolution()
       rect(i, j, squareWidth, squareWidth);
     }
   }
-  /*for (int i = 0; i < img.width; i+=squareWidth)
-   {
-   for (int j = 0; j < img.height; j+=squareWidth)
-   {  
-   squareWidth = (int) map(fft.getAvg(15), 0, (int) maxAverages[5], smallestSquare, largestSquare);
-   fill(img.get(i+(squareWidth/2), j+(squareWidth/2)));
-   ellipse(i,j,squareWidth,squareWidth);
-   }
-   }*/
 }
 void loadImages()
 {
@@ -204,18 +212,24 @@ void loadMusic()
   } 
   catch(NullPointerException e) {
     println("Null Pointer, default to song1");
-      player = minim.loadFile("./data/songs/song1.mp3"); 
+    player = minim.loadFile("./data/songs/song1.mp3");
   }
   //player = minim.loadFile("./data/songs/song1.mp3");
   fft = new FFT(player.bufferSize(), player.sampleRate());
+
+  //fft.logAverages(starting frequency?, how many values each octave is cut up into);
+  //standard fouriet
   //fft.logAverages(60, 7);
-  fft.logAverages(60, 7);
+  //more samples = smoother circle visuals
+  fft.logAverages(2, 16);
   player.play();
 }
 
 //*****************************Bass Circle with Treble Circles
 void circleVisuals()
 {
+  fill(0, 0, 0, 10);
+  rect(0, 0, width, height);
   ellipseMode(RADIUS);
 
   //BASS circle
