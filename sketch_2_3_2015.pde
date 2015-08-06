@@ -1,8 +1,9 @@
 import ddf.minim.*;
 import ddf.minim.analysis.*;
+//Minim documentation: http://code.compartmental.net/minim/javadoc/
 
 PImage img;
-int imageCount, songCount, imageIndex, oddsToRenderCircle, visualizationType;
+int imageCount, songCount, imageIndex, visualizationType;
 //Audio variables
 float maxAverages[];
 Minim minim;
@@ -13,7 +14,6 @@ AudioInput in;
 //visualizer 1 variables *********************
 int imageHeight, smallestSquare, largestSquare, squareWidth;
 //visualizer 2 variables ********************
-int outerCircleColor;
 //Easily change the index of outside Circle
 int outerCircleFourierValue;
 //visaulizer 3 variables ********************
@@ -21,22 +21,20 @@ int smallRadius, largeRadius;
 
 void setup()
 {
-  size(620, 620);
+  size(500, 500);
 
   imageCount = 78;
-  songCount = 28;
+  songCount = 11;
   //number of values the fft object returns is 63
-  maxAverages = new float[63];
+  loadMusic();
+
+  maxAverages = new float[fft.avgSize()];
   for (float i : maxAverages)
   {
-    i = 100;
+    i = 20;
   }
 
-  oddsToRenderCircle = 20;
-  outerCircleColor = 1;
-
-  updateAverages();
-  loadMusic();
+  updateMaxAverages();
 
   //Visualization 1
   imageHeight = displayHeight;
@@ -67,7 +65,7 @@ void draw()
   }
 
   //update meta data and info
-  updateAverages();
+  updateMaxAverages();
   printInfo();
   displayInfo();
 }
@@ -81,14 +79,14 @@ void centerGraph()
   for (int i = 0; i < fft.avgSize (); i++)
   {
     rotate(2*PI/fft.avgSize());
-    stroke(i, 0, fft.avgSize()-i);
-    strokeWeight(2);
-    line(0, 0, map(fft.getAvg(i), 0, 200, 100, (width/2)-(width/10)), 0);
+    stroke(fft.avgSize()-i, 0, i);
+    strokeWeight(4);
+    line(0, 0, map(fft.getAvg(i), 0, maxAverages[i], 100, 180), 0);
   }
   popMatrix();
 
   fill(0);
-  ellipse(width/2, height/2, 100, 100);
+  ellipse(width/2, height/2, 200, 200);
 }
 
 
@@ -117,6 +115,10 @@ void keyPressed()
       player.play();
     }
   }
+  if (key == 114)
+  {
+    player.rewind();
+  }
 }
 
 void displayInfo()
@@ -132,10 +134,12 @@ void displayInfo()
   //stext("Image: "+imageIndex, textSize, textSize);
 }
 
-void updateAverages()
+void updateMaxAverages()
 {
-  for (int i = 0; i < maxAverages.length; i++) {
-    if (fft.getAvg(i) > maxAverages[i]) {
+  for (int i = 0; i < maxAverages.length; i++) 
+  {
+    if (fft.getAvg(i) > maxAverages[i]) 
+    {
       maxAverages[i] = fft.getAvg(i);
     }
   }
@@ -144,7 +148,7 @@ void updateAverages()
 void printInfo()
 {
   println();
-  for (int i = 1; i < 61; i+= 5)
+  for (int i = 1; i < fft.avgSize (); i+= 5)
   {
     print(i+":"+ ((int)fft.getAvg(i))+" - ");
   }
@@ -178,19 +182,33 @@ void updateResolution()
 void loadImages()
 {
   int n = (int) random(imageCount-1)+1;
-  img = loadImage("./data/images/img"+n+".jpg");
+  try
+  {
+    img = loadImage("./data/images/img"+n+".jpg");
+  }
+  catch (NullPointerException e)
+  {
+    img = loadImage("./data/Images/img1.jpg");
+  }
   //Make the image proportional to the new height
   img.resize(imageHeight*img.width/img.height, imageHeight);
   //size(img.width, img.height);
 }
 void loadMusic()
 {
-  int songIndex = (int) random(songCount);
-
   minim = new Minim(this);
-  player = minim.loadFile("./data/songs/song"+songIndex+".mp3"); 
+  try 
+  {
+    int songIndex = (int) random(songCount);
+    player = minim.loadFile("./data/songs/song"+songIndex+".mp3");
+  } 
+  catch(NullPointerException e) {
+    println("Null Pointer, default to song1");
+      player = minim.loadFile("./data/songs/song1.mp3"); 
+  }
   //player = minim.loadFile("./data/songs/song1.mp3");
   fft = new FFT(player.bufferSize(), player.sampleRate());
+  //fft.logAverages(60, 7);
   fft.logAverages(60, 7);
   player.play();
 }
@@ -212,14 +230,7 @@ void circleVisuals()
   int trad = (int) map(fft.getAvg(25), 0, (int) maxAverages[25], 0, width/2);
   ellipse(width/2, height/2, trad, trad);
 
-  if (outerCircleColor == 1)
-  {
-    stroke(0, 0, 255);
-    outerCircleColor = 2;
-  } else {
-    stroke(255, 255, 0);
-    outerCircleColor = 1;
-  }
+  stroke(255, 255, 0);
 
   outerCircleFourierValue = 50;
   if (fft.getAvg(outerCircleFourierValue)>(maxAverages[outerCircleFourierValue]/2))
