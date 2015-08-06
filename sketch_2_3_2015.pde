@@ -2,7 +2,7 @@ import ddf.minim.*;
 import ddf.minim.analysis.*;
 
 PImage img;
-int imageCount, songCount, imageIndex, oddsToRenderCircle;
+int imageCount, songCount, imageIndex, oddsToRenderCircle, visualizationType;
 //Audio variables
 float maxAverages[];
 Minim minim;
@@ -10,12 +10,10 @@ FFT fft;
 AudioPlayer player;
 AudioInput in;
 
-int outerCircleColor;
-
 //visualizer 1 variables *********************
 int imageHeight, smallestSquare, largestSquare, squareWidth;
 //visualizer 2 variables ********************
-
+int outerCircleColor;
 //Easily change the index of outside Circle
 int outerCircleFourierValue;
 //visaulizer 3 variables ********************
@@ -29,7 +27,7 @@ void setup()
   songCount = 28;
   //number of values the fft object returns is 63
   maxAverages = new float[63];
-  for(float i: maxAverages)
+  for (float i : maxAverages)
   {
     i = 100;
   }
@@ -37,14 +35,16 @@ void setup()
   oddsToRenderCircle = 20;
   outerCircleColor = 1;
 
-  loadImages();
-  loadMusic();
   updateAverages();
-  
+  loadMusic();
+
   //Visualization 1
   imageHeight = displayHeight;
   smallestSquare = 1;
   largestSquare = (int) displayWidth/10;
+  loadImages();
+
+  visualizationType = 3;
 }
 void draw()
 {
@@ -56,12 +56,15 @@ void draw()
 
   //Set the type of visualization
 
-  //Bass+Treble Circles
-  //circleVisuals();
-  //Image blurring visualizer
-  //updateResolution();
-  //Circle Graph
-  centerGraph();
+  if (visualizationType == 1)
+  {
+    updateResolution();
+  } else if (visualizationType == 2)
+  {
+    circleVisuals();
+  } else {
+    centerGraph();
+  }
 
   //update meta data and info
   updateAverages();
@@ -75,17 +78,17 @@ void centerGraph()
   pushMatrix();
   translate(width/2, height/2);
 
-  for (int i = 0; i < fft.avgSize(); i++)
+  for (int i = 0; i < fft.avgSize (); i++)
   {
     rotate(2*PI/fft.avgSize());
-    stroke(i,0,fft.avgSize()-i);
+    stroke(i, 0, fft.avgSize()-i);
     strokeWeight(2);
     line(0, 0, map(fft.getAvg(i), 0, 200, 100, (width/2)-(width/10)), 0);
   }
   popMatrix();
-  
+
   fill(0);
-  ellipse(width/2,height/2,100,100);
+  ellipse(width/2, height/2, 100, 100);
 }
 
 
@@ -209,7 +212,6 @@ void circleVisuals()
   int trad = (int) map(fft.getAvg(25), 0, (int) maxAverages[25], 0, width/2);
   ellipse(width/2, height/2, trad, trad);
 
-
   if (outerCircleColor == 1)
   {
     stroke(0, 0, 255);
@@ -227,7 +229,6 @@ void circleVisuals()
       for (int j = 1; j < 4; j++)
       {
         PVector ellipseCenter = new PVector(i * width/4, j * height/4);
-
 
         //int smallRad = (int) dist(ellipseCenter.x, ellipseCenter.y, width/2, height/2);
         int smallRad = (int) map(fft.getAvg(outerCircleFourierValue), 0, (int) maxAverages[outerCircleFourierValue], 0, width/2);
