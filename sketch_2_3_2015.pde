@@ -76,10 +76,20 @@ void centerGraph()
   {
     rotate(2*PI/fft.avgSize());
     stroke(fft.avgSize()-i, 0, i);
-    strokeWeight(6);
+    fill(fft.avgSize()-i, 0, i);
+    strokeWeight(1);
     strokeCap(SQUARE);
+    //Simply lines coming from center
     //line(0, 0, map(fft.getAvg(i), 0, maxAverages[i], 100, 180), 0);
+
+    //Polygons to make congruent shape
+    float end1 = map(fft.getAvg(i), 0, maxAverages[i], 100, 180);
+    float end2 = map(fft.getAvg((i+1)%fft.avgSize()), 0, maxAverages[(i+1)%fft.avgSize()], 100, 180);
+
+    float p2Y =  (end2 * sin(2*PI/fft.avgSize()));
+    float p2X =  (end2 * cos(2*PI/fft.avgSize()));
     
+    quad(0.0, 0.0, end1, 0.0, p2X, p2Y, 0.0, 0.0);
   }
   popMatrix();
 
