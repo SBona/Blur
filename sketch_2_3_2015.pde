@@ -68,32 +68,40 @@ void draw()
 
 void centerGraph()
 {
-  background(255);
+  background(0);
   pushMatrix();
   translate(width/2, height/2);
 
   for (int i = 0; i < fft.avgSize (); i++)
   {
     rotate(2*PI/fft.avgSize());
-    stroke(fft.avgSize()-i, 0, i);
-    fill(fft.avgSize()-i, 0, i);
+    //full color scale
+    color thisColor = color(map(i, 0, fft.avgSize(), 255, 0), map(abs((fft.avgSize()/2)-i), 0, fft.avgSize()/2, 255, 0), map(i, 0, fft.avgSize(), 0, 255));
+    //Red Bass, Purple, Blue
+    //color thisColor = color(map(fft.avgSize()-i, 0, fft.avgSize(), 0, 255), 0, map(i, 0, fft.avgSize(), 0, 255));
+    //Red-teal
+    //thisColor = color(map(fft.avgSize()-i,0,fft.avgSize(),0,255), map(i,0,fft.avgSize(),0,255), map(i,0,fft.avgSize(),0,255));
+    thisColor = color(map(i, 0, fft.avgSize(), 255, 0), map(abs((fft.avgSize()/2)-i), 0, fft.avgSize()/2, 255, 0), map(i, 0, fft.avgSize(), 0, 255),map(abs((fft.avgSize()/2)-i), 0, fft.avgSize()/2, 255, 0));
+
+    stroke(thisColor);
+    fill(thisColor);
     strokeWeight(1);
     strokeCap(SQUARE);
+
+
     //Simply lines coming from center
     //line(0, 0, map(fft.getAvg(i), 0, maxAverages[i], 100, 180), 0);
 
     //Polygons to make congruent shape
-    float end1 = map(fft.getAvg(i), 0, maxAverages[i], 100, 180);
-    float end2 = map(fft.getAvg((i+1)%fft.avgSize()), 0, maxAverages[(i+1)%fft.avgSize()], 100, 180);
-
+    float end1 = map(fft.getAvg(i), 0, maxAverages[i], 100, 200);
+    float end2 = map(fft.getAvg((i+1)%fft.avgSize()), 0, maxAverages[(i+1)%fft.avgSize()], 100, 200);
     float p2Y =  (end2 * sin(2*PI/fft.avgSize()));
     float p2X =  (end2 * cos(2*PI/fft.avgSize()));
-    
     quad(0.0, 0.0, end1, 0.0, p2X, p2Y, 0.0, 0.0);
   }
   popMatrix();
 
-  fill(255);
+  fill(0);
   strokeWeight(2);
   ellipse(width/2, height/2, 200, 200);
 }
@@ -113,8 +121,8 @@ void keyPressed()
     loadMusic();
     background(0);
   }
-  //pause with 'p'
-  if (key == 112)
+  //pause with spacebar
+  if (key == 32)
   {
     if (player.isPlaying())
     {
