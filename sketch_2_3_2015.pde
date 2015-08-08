@@ -24,7 +24,7 @@ void setup()
   size(500, 500);
 
   imageCount = 78;
-  songCount = 3;
+  songCount = 10;
   loadMusic();
 
   //number of values the fft object returns is 63
@@ -68,7 +68,7 @@ void draw()
 
 void centerGraph()
 {
-  background(0, 0, 0, 1);
+  background(255);
   pushMatrix();
   translate(width/2, height/2);
 
@@ -78,11 +78,12 @@ void centerGraph()
     stroke(fft.avgSize()-i, 0, i);
     strokeWeight(6);
     strokeCap(SQUARE);
-    line(0, 0, map(fft.getAvg(i), 0, maxAverages[i], 100, 180), 0);
+    //line(0, 0, map(fft.getAvg(i), 0, maxAverages[i], 100, 180), 0);
+    
   }
   popMatrix();
 
-  fill(0);
+  fill(255);
   strokeWeight(2);
   ellipse(width/2, height/2, 200, 200);
 }
@@ -219,9 +220,9 @@ void loadMusic()
 
   //fft.logAverages(starting frequency?, how many values each octave is cut up into);
   //standard fouriet
-  //fft.logAverages(60, 7);
+  fft.logAverages(60, 7);
   //more samples = smoother circle visuals
-  fft.logAverages(2, 16);
+  //fft.logAverages(2, 16);
   player.play();
 }
 
