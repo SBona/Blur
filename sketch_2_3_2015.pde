@@ -18,7 +18,7 @@ int imageHeight, smallestSquare, largestSquare, squareWidth;
 int outerCircleFourierValue;
 //visaulizer 3 variables ********************
 
-circleGraph mygraph;
+ArrayList circleGraphs;
 
 void setup()
 {
@@ -42,15 +42,21 @@ void setup()
    largestSquare = (int) displayWidth/10;
    loadImages();
    */
-   mygraph = new circleGraph(width/2,height/2,10,width/2);
+  circleGraphs = new ArrayList();
+
+  for (int i = 1; i < 5; i++)
+  {
+    for (int j = 1; j < 5; j++)
+    {
+      circleGraphs.add(new circleGraph(i*(width/5), j*(width/5), 10, 50));
+    }
+  }
 }
 void draw()
 {
   background(0);
   //update the fourier object an display 
   fft.forward(player.mix);
-
-  //Set the type of visualization
 
   //updateResolution();
   //circleVisuals();
@@ -59,181 +65,13 @@ void draw()
   updateMaxAverages();
   printInfo();
   displayInfo();
-  
-  mygraph.draw();
-}
 
-void keyPressed()
-{
-  //load new image with space
-  if (key == 32)
+  for (int i = 0; i < circleGraphs.size (); i++)
   {
-    loadImages();
-  }
-  //change song with 's'
-  if (key == 115)
-  {
-    player.close();
-    loadMusic();
-    background(0);
-  }
-  //pause with spacebar
-  if (key == 32)
-  {
-    if (player.isPlaying())
-    {
-      player.pause();
-    } else
-    {
-      player.play();
-    }
-  }
-  //r
-  if (key == 114)
-  {
-    player.rewind();
-  }
-  //m
-  if (key == 109)
-  {
-    player.mute();
+    ((circleGraph)circleGraphs.get(i)).draw();
   }
 }
 
-void displayInfo()
-{
-  stroke(255);
-  int textSize = (int) height/50;
-  textAlign(RIGHT);
-  textSize(textSize);
-  text(player.getMetaData().title(), width-textSize, textSize);
-  text(player.getMetaData().album(), width-textSize, (2*textSize)+2);
-  text(player.getMetaData().author(), width-textSize, (3*textSize)+4);
-  textAlign(LEFT);
 
-  /*fill(255, 0, 0);
-   stroke(255, 0, 0);
-   int textSize = 9;
-   textAlign(CENTER);
-   textSize(textSize);
-   text(player.getMetaData().title(), width/2, (height/2)-textSize);
-   text(player.getMetaData().album(), width/2, height/2 );
-   text(player.getMetaData().author(), width/2, (height/2)+textSize);*/
 
-  //stext("Image: "+imageIndex, textSize, textSize);
-}
-
-void updateMaxAverages()
-{
-  for (int i = 0; i < maxAverages.length; i++) 
-  {
-    if (fft.getAvg(i) > maxAverages[i]) 
-    {
-      maxAverages[i] = fft.getAvg(i);
-    }
-  }
-}
-
-void printInfo()
-{
-  println();
-  for (int i = 1; i < fft.avgSize (); i+= 5)
-  {
-    print(i+":"+ ((int)fft.getAvg(i))+" - ");
-  }
-}
-//******************Squares that blur and change size
-void updateResolution()
-{
-  noStroke();
-  image(img, 0, 0);
-
-  for (int i = 0; i < img.width; i+=squareWidth)
-  {
-    for (int j = 0; j < img.height; j+=squareWidth)
-    {      
-      squareWidth = (int) map(fft.getAvg(5), 0, (int) maxAverages[5], smallestSquare, largestSquare);
-
-      fill(img.get(i+(squareWidth/2), j+(squareWidth/2)));
-      rect(i, j, squareWidth, squareWidth);
-    }
-  }
-}
-void loadImages()
-{
-  int n = (int) random(imageCount-1)+1;
-  try
-  {
-    img = loadImage("./data/images/img"+n+".jpg");
-  }
-  catch (NullPointerException e)
-  {
-    img = loadImage("./data/Images/img1.jpg");
-  }
-  //Make the image proportional to the new height
-  img.resize(imageHeight*img.width/img.height, imageHeight);
-  //size(img.width, img.height);
-}
-void loadMusic()
-{
-  minim = new Minim(this);
-  try 
-  {
-    int songIndex = (int) random(songCount);
-    player = minim.loadFile("./data/songs/song"+songIndex+".mp3");
-  } 
-  catch(NullPointerException e) {
-    println("Null Pointer, default to song1");
-    player = minim.loadFile("./data/songs/song1.mp3");
-  }
-  //player = minim.loadFile("./data/songs/song1.mp3");
-  fft = new FFT(player.bufferSize(), player.sampleRate());
-
-  //fft.logAverages(starting frequency?, how many values each octave is cut up into);
-  //standard fouriet
-  fft.logAverages(60, 7);
-  //more samples = smoother circle visuals
-  //fft.logAverages(2, 16);
-  player.play();
-}
-
-//*****************************Bass Circle with Treble Circles
-void circleVisuals()
-{
-  fill(0, 0, 0, 10);
-  rect(0, 0, width, height);
-  ellipseMode(RADIUS);
-
-  //BASS circle
-  stroke(255, 0, 0);
-  fill(200, 0, 0);
-  int rad = (int) map(fft.getAvg(5), 0, (int) maxAverages[5], 0, width/2);
-  ellipse(width/2, height/2, rad, rad);
-
-  //Treble Circle
-  stroke(0, 0, 255);
-  noFill();
-  int trad = (int) map(fft.getAvg(25), 0, (int) maxAverages[25], 0, width/2);
-  ellipse(width/2, height/2, trad, trad);
-
-  stroke(255, 255, 0);
-
-  outerCircleFourierValue = 50;
-  if (fft.getAvg(outerCircleFourierValue)>(maxAverages[outerCircleFourierValue]/2))
-  {
-    for (int i = 1; i < 4; i++)
-    {
-      for (int j = 1; j < 4; j++)
-      {
-        PVector ellipseCenter = new PVector(i * width/4, j * height/4);
-
-        //int smallRad = (int) dist(ellipseCenter.x, ellipseCenter.y, width/2, height/2);
-        int smallRad = (int) map(fft.getAvg(outerCircleFourierValue), 0, (int) maxAverages[outerCircleFourierValue], 0, width/2);
-        smallRad -= rad;
-
-        ellipse(ellipseCenter.x, ellipseCenter.y, smallRad, smallRad);
-      }
-    }
-  }
-}
 
