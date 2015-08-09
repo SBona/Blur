@@ -17,14 +17,15 @@ int imageHeight, smallestSquare, largestSquare, squareWidth;
 //Easily change the index of outside Circle
 int outerCircleFourierValue;
 //visaulizer 3 variables ********************
-int smallRadius, largeRadius;
+
+circleGraph mygraph;
 
 void setup()
 {
   size(500, 500);
 
   imageCount = 78;
-  songCount = 10;
+  songCount = 13;
   loadMusic();
 
   //number of values the fft object returns is 63
@@ -36,76 +37,31 @@ void setup()
   updateMaxAverages();
 
   //Visualization 1
-  imageHeight = displayHeight;
-  smallestSquare = 1;
-  largestSquare = (int) displayWidth/10;
-  loadImages();
-
-  visualizationType = 3;
+  /*imageHeight = displayHeight;
+   smallestSquare = 1;
+   largestSquare = (int) displayWidth/10;
+   loadImages();
+   */
+   mygraph = new circleGraph(width/2,height/2,10,width/2);
 }
 void draw()
 {
+  background(0);
   //update the fourier object an display 
   fft.forward(player.mix);
 
   //Set the type of visualization
 
-  if (visualizationType == 1)
-  {
-    updateResolution();
-  } else if (visualizationType == 2)
-  {
-    circleVisuals();
-  } else {
-    centerGraph();
-  }
+  //updateResolution();
+  //circleVisuals();
 
   //update meta data and info
   updateMaxAverages();
   printInfo();
   displayInfo();
+  
+  mygraph.draw();
 }
-
-void centerGraph()
-{
-  background(0);
-  pushMatrix();
-  translate(width/2, height/2);
-
-  for (int i = 0; i < fft.avgSize (); i++)
-  {
-    rotate(2*PI/fft.avgSize());
-    //full color scale
-    color thisColor = color(map(i, 0, fft.avgSize(), 255, 0), map(abs((fft.avgSize()/2)-i), 0, fft.avgSize()/2, 255, 0), map(i, 0, fft.avgSize(), 0, 255));
-    //Red Bass, Purple, Blue
-    //color thisColor = color(map(fft.avgSize()-i, 0, fft.avgSize(), 0, 255), 0, map(i, 0, fft.avgSize(), 0, 255));
-    //Red-teal
-    //thisColor = color(map(fft.avgSize()-i,0,fft.avgSize(),0,255), map(i,0,fft.avgSize(),0,255), map(i,0,fft.avgSize(),0,255));
-    thisColor = color(map(i, 0, fft.avgSize(), 255, 0), map(abs((fft.avgSize()/2)-i), 0, fft.avgSize()/2, 255, 0), map(i, 0, fft.avgSize(), 0, 255),map(abs((fft.avgSize()/2)-i), 0, fft.avgSize()/2, 255, 0));
-
-    stroke(thisColor);
-    fill(thisColor);
-    strokeWeight(1);
-    strokeCap(SQUARE);
-
-
-    //Simply lines coming from center
-    //line(0, 0, map(fft.getAvg(i), 0, maxAverages[i], 100, 180), 0);
-
-    //Polygons to make congruent shape
-    float end1 = map(fft.getAvg(i), 0, maxAverages[i], 100, 200);
-    float end2 = map(fft.getAvg((i+1)%fft.avgSize()), 0, maxAverages[(i+1)%fft.avgSize()], 100, 200);
-    float p2Y =  (end2 * sin(2*PI/fft.avgSize()));
-    float p2X =  (end2 * cos(2*PI/fft.avgSize()));
-    quad(0.0, 0.0, end1, 0.0, p2X, p2Y, 0.0, 0.0);
-  }
-  popMatrix();
-
-  fill(0);
-  strokeWeight(2);
-  ellipse(width/2, height/2, 200, 200);
-}
-
 
 void keyPressed()
 {
@@ -146,27 +102,24 @@ void keyPressed()
 
 void displayInfo()
 {
-  if (visualizationType != 3)
-  {
-    stroke(255);
-    int textSize = (int) height/50;
-    textAlign(RIGHT);
-    textSize(textSize);
-    text(player.getMetaData().title(), width-textSize, textSize);
-    text(player.getMetaData().album(), width-textSize, (2*textSize)+2);
-    text(player.getMetaData().author(), width-textSize, (3*textSize)+4);
-    textAlign(LEFT);
-  } else
-  {
-    fill(255, 0, 0);
-    stroke(255, 0, 0);
-    int textSize = 9;
-    textAlign(CENTER);
-    textSize(textSize);
-    text(player.getMetaData().title(), width/2, (height/2)-textSize);
-    text(player.getMetaData().album(), width/2, height/2 );
-    text(player.getMetaData().author(), width/2, (height/2)+textSize);
-  }
+  stroke(255);
+  int textSize = (int) height/50;
+  textAlign(RIGHT);
+  textSize(textSize);
+  text(player.getMetaData().title(), width-textSize, textSize);
+  text(player.getMetaData().album(), width-textSize, (2*textSize)+2);
+  text(player.getMetaData().author(), width-textSize, (3*textSize)+4);
+  textAlign(LEFT);
+
+  /*fill(255, 0, 0);
+   stroke(255, 0, 0);
+   int textSize = 9;
+   textAlign(CENTER);
+   textSize(textSize);
+   text(player.getMetaData().title(), width/2, (height/2)-textSize);
+   text(player.getMetaData().album(), width/2, height/2 );
+   text(player.getMetaData().author(), width/2, (height/2)+textSize);*/
+
   //stext("Image: "+imageIndex, textSize, textSize);
 }
 
