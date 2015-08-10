@@ -37,16 +37,15 @@ public class circleGraph
       float p2Y =  (end2 * sin(2*PI/fft.avgSize()));
       float p2X =  (end2 * cos(2*PI/fft.avgSize()));
       //quad(0.0, 0.0, end1, 0.0, p2X, p2Y, 0.0, 0.0);
-      
+
       //Simply lines coming from center
       line(0, 0, end1, 0);
-      
     }
+    fill(0);
+    ellipse(0,0,this.innerRad,this.innerRad);
     popMatrix();
 
-    fill(0);
     strokeWeight(2);
-    //ellipse(width/2, height/2, 200, 200);
   }
 }
 

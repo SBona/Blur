@@ -48,9 +48,10 @@ void setup()
   {
     for (int j = 1; j < 5; j++)
     {
-      circleGraphs.add(new circleGraph(i*(width/5), j*(width/5), 10, 50));
+      //circleGraphs.add(new circleGraph(i*(width/5), j*(width/5), 10, 50));
     }
   }
+  circleGraphs.add(new circleGraph(width/2,height/2,20,100));
 }
 void draw()
 {
@@ -70,6 +71,7 @@ void draw()
   {
     ((circleGraph)circleGraphs.get(i)).draw();
   }
+  visualizer4();
 }
 
 
