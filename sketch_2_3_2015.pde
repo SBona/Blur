@@ -71,7 +71,7 @@ void draw()
   {
     ((circleGraph)circleGraphs.get(i)).draw();
   }
-  visualizer4();
+  //visualizer4();
 }
 
 
